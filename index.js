@@ -19,12 +19,21 @@ module.exports = function (options) {
 		var ret;
 
 		options = options || {};
-		options.filename = path.basename(file.path);
+		options.filename = '/'+path.relative(file.cwd, file.path);
 
 		try {
 			ret = traceur.compile(file.contents.toString(), options);
 			if (ret.js) {
-				file.contents = new Buffer(ret.js);
+				file.contents = new Buffer( ret.js + '\n//# sourceMappingURL=' + path.basename(file.path + '.map'));
+
+				if (options.sourceMap && ret.sourceMap) {
+					this.push(new gutil.File({
+						cwd: file.cwd,
+						base: file.base,
+						path: file.path + '.map',
+						contents: new Buffer(ret.sourceMap)
+					}));
+				}
 			}
 		} catch (err) {
 			this.emit('error', new gutil.PluginError('gulp-traceur', err));
