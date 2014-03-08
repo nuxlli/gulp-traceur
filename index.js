@@ -24,15 +24,16 @@ module.exports = function (options) {
 		try {
 			ret = traceur.compile(file.contents.toString(), options);
 			if (ret.js) {
-				file.contents = new Buffer( ret.js + '\n//# sourceMappingURL=' + path.basename(file.path + '.map'));
-
 				if (options.sourceMap && ret.sourceMap) {
+					file.contents = new Buffer(ret.js + '\n//# sourceMappingURL=' + path.basename(file.path + '.map'));
 					this.push(new gutil.File({
 						cwd: file.cwd,
 						base: file.base,
 						path: file.path + '.map',
 						contents: new Buffer(ret.sourceMap)
 					}));
+				} else {
+					file.contents = new Buffer(ret.js);
 				}
 			}
 		} catch (err) {
