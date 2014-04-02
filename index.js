@@ -19,7 +19,12 @@ module.exports = function (options) {
 		var ret;
 
 		options = options || {};
-		options.filename = '/'+path.relative(file.cwd, file.path);
+		options.filename = path.relative(file.cwd, file.path);
+
+		if (options.dest) {
+			var dest = path.dirname(path.join(options.dest, options.filename));
+			options.filename = path.relative(path.join(dest, '..'), file.path);
+		}
 
 		try {
 			ret = traceur.compile(file.contents.toString(), options);
